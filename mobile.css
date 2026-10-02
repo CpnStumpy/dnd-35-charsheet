@@ -1,0 +1,187 @@
+/* Mobile-first overrides kept separate from the desktop theme. */
+@media (max-width: 768px) {
+    body {
+        min-width: 0;
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+    }
+    header {
+        padding: 14px 16px;
+    }
+    header::after {
+        left: 16px;
+        right: 16px;
+    }
+    .header-content,
+    .header-left,
+    .header-right {
+        width: 100%;
+    }
+    .header-content {
+        gap: 12px;
+    }
+    .header-right {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+    }
+    .header-right .btn {
+        min-width: 0;
+        min-height: 44px;
+        padding: 8px 6px;
+        font-size: 0.75rem;
+    }
+    .tabs {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        scrollbar-width: none;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        -webkit-overflow-scrolling: touch;
+        box-shadow: var(--shadow-sm);
+    }
+    .tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .tab-btn {
+        min-height: 48px;
+        padding: 12px 16px;
+        scroll-snap-align: start;
+    }
+    .tab-content {
+        padding: 12px;
+        min-height: 0;
+    }
+    .card {
+        padding: 16px 12px;
+        margin-bottom: 12px;
+        border-radius: var(--radius-md);
+    }
+    .card h2 {
+        margin-bottom: 16px;
+        font-size: 1.1rem;
+    }
+    .abilities-display-grid,
+    .health-grid,
+    .combat-grid,
+    .combat-maneuvers-grid,
+    .movement-grid,
+    .resistance-grid,
+    .summary-grid,
+    .wealth-grid,
+    .magic-items-grid,
+    .caster-config-grid,
+    .spell-slots-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+    .char-info-grid,
+    .form-row,
+    .capacity-thresholds,
+    .spell-ranges-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .form-control,
+    input,
+    select,
+    textarea {
+        max-width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+    }
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: auto;
+        width: 20px;
+        height: 20px;
+    }
+    .btn,
+    button {
+        touch-action: manipulation;
+    }
+    .form-actions,
+    .modal-footer,
+    .confirmation-actions,
+    .character-load-actions,
+    .class-actions,
+    .skills-controls,
+    .carried-items-controls {
+        flex-wrap: wrap;
+    }
+    .form-actions .btn,
+    .modal-footer .btn {
+        flex: 1 1 120px;
+        min-height: 44px;
+    }
+    .ability-table,
+    .classes-table-container,
+    .skills-table-container,
+    .carried-items-table-container,
+    .feats-table-container,
+    .spell-level-content {
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+    .skills-table,
+    .carried-items-table,
+    .feats-table,
+    .spells-table {
+        min-width: 640px;
+    }
+    .modal-overlay,
+    .info-modal-overlay {
+        align-items: flex-end;
+    }
+    .modal-content,
+    .modal-large,
+    .info-modal-detail,
+    .help-modal {
+        width: 100% !important;
+        max-width: none !important;
+        max-height: 92dvh;
+        margin: 0 !important;
+        padding: 20px 16px;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .modal-footer {
+        position: sticky;
+        bottom: -20px;
+        margin-inline: -16px;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+        background: var(--bg-card);
+    }
+    .ranks-grid-header,
+    .rank-row {
+        grid-template-columns: 64px minmax(90px, 1fr) 52px 52px;
+        gap: 6px;
+        padding: 8px 4px;
+    }
+    .toast-container {
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        left: 12px;
+    }
+    .toast {
+        max-width: none;
+    }
+    footer {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+@media (max-width: 420px) {
+    .header-right {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .header-right .btn-theme-toggle {
+        grid-column: auto;
+    }
+    .ability-display {
+        padding: 12px 8px;
+    }
+    .spell-dc-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

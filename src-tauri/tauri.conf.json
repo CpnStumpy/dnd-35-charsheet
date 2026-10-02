@@ -7,7 +7,7 @@
     "frontendDist": "../dist",
     "devUrl": "http://localhost:8000",
     "beforeDevCommand": "python3 -m http.server 8000",
-    "beforeBuildCommand": "sh -c \"rm -rf dist && mkdir -p dist/js/ui dist/js/lib dist/data/json && cp index.html dist/ && cp styles.css dist/ && cp js/*.js dist/js/ && cp js/ui/*.js dist/js/ui/ && cp js/lib/*.js dist/js/lib/ && cp data/json/*.json dist/data/json/ && cp data/sample_character.json dist/data/\""
+    "beforeBuildCommand": "sh -c \"rm -rf dist && mkdir -p dist/js/ui dist/js/lib dist/data/json && cp index.html dist/ && cp styles.css mobile.css mobile-feats.css dist/ && cp js/*.js dist/js/ && cp js/ui/*.js dist/js/ui/ && cp js/lib/*.js dist/js/lib/ && cp data/json/*.json dist/data/json/ && cp data/sample_character.json dist/data/\""
   },
   "bundle": {
     "icon": [
