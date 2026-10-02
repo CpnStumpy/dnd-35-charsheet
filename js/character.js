@@ -335,6 +335,8 @@ class Character {
                 cha: raceData.cha
             };
 
+            this.data.racialAbilities = [...(raceData.racialTraits || [])];
+
             // Automatically add racial languages
             this.addRacialLanguages();
         }

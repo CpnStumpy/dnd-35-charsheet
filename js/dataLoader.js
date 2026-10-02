@@ -498,6 +498,7 @@ class DataLoader {
                     wis: race.wis || 0,
                     cha: race.cha || 0,
                     senses: race.senses || '',
+                    racialTraits: race.racialTraits || [],
                     favoredClass: favoredClass
                 });
             });

@@ -306,6 +306,12 @@ class CharacterTab {
                 </div>
             </div>
 
+            <!-- Natural Features -->
+            <div class="card">
+                <h2>Natural Features</h2>
+                <div id="naturalFeaturesList"></div>
+            </div>
+
             <!-- Languages -->
             <div class="card">
                 <h2>Languages</h2>
@@ -714,6 +720,8 @@ class CharacterTab {
 
         // Portrait
         this.renderPortrait();
+
+        NaturalFeatures.render(document.getElementById('naturalFeaturesList'), data);
 
         // Basic info
         const nameInput = document.getElementById('charNameInput');

@@ -1,0 +1,21 @@
+.natural-features-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 10px;
+    list-style: none;
+}
+
+.natural-features-list li {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+@media (max-width: 768px) {
+    .natural-features-list {
+        grid-template-columns: 1fr;
+    }
+}
