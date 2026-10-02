@@ -21,6 +21,13 @@ class FeatsTab {
             </div>
 
             <div class="card">
+                <h2>Natural Features</h2>
+                <p class="info-text">Class and racial features are granted automatically and do not use feat slots. For example, Inspire Courage is a bard class feature rather than a selectable feat.</p>
+                <div id="naturalFeaturesList" class="natural-features-list"></div>
+                <div id="classFeatureChoices"></div>
+            </div>
+
+            <div class="card">
                 <h2>Current Feats</h2>
                 <div class="feats-controls">
                     <button id="addFeatBtn" class="btn btn-primary">Add Feat</button>
@@ -218,6 +225,12 @@ class FeatsTab {
             }
         });
 
+        this.container.addEventListener('change', event => {
+            if (event.target.classList.contains('class-feature-choice')) {
+                character.setClassFeatureChoice(event.target.dataset.choiceId, event.target.value);
+            }
+        });
+
         // Modal events
         document.addEventListener('click', (e) => {
             if (e.target.id === 'confirmAddFeat') {
@@ -264,8 +277,65 @@ class FeatsTab {
         if (!stats) return;
         this.stats = stats;
         this.renderFeatSlots();
+        this.renderNaturalFeatures();
+        this.renderClassFeatureChoices();
         this.renderCurrentFeats();
         this.renderCurrentFlaws();
+    }
+
+    renderClassFeatureChoices() {
+        const choiceContainer = document.getElementById('classFeatureChoices');
+        if (!choiceContainer) return;
+
+        const choices = new ClassFeatureChoices().getAvailable(character.getData());
+        choiceContainer.replaceChildren();
+        if (choices.length === 0) return;
+
+        const heading = document.createElement('h3');
+        heading.textContent = 'Class Feature Choices';
+        choiceContainer.appendChild(heading);
+
+        choices.forEach(choice => {
+            const row = document.createElement('label');
+            row.className = 'class-feature-choice-row';
+            row.textContent = `${choice.className} ${choice.classLevel} — ${choice.name}`;
+            const select = document.createElement('select');
+            select.className = 'form-control class-feature-choice';
+            select.dataset.choiceId = choice.id;
+            select.appendChild(new Option('-- Choose --', ''));
+            choice.options.forEach(option => select.appendChild(new Option(option, option)));
+            select.value = choice.selected;
+            row.appendChild(select);
+            choiceContainer.appendChild(row);
+        });
+    }
+
+    renderNaturalFeatures() {
+        const featureList = document.getElementById('naturalFeaturesList');
+        if (!featureList) return;
+
+        const resolver = new NaturalFeatures(dataLoader.gameData);
+        const features = resolver.getForCharacter(character.getData());
+        if (features.length === 0) {
+            featureList.innerHTML = '<p class="info-text">Choose a class or race to see its automatic features.</p>';
+            return;
+        }
+
+        featureList.replaceChildren(...features.map(feature => {
+            const featureCard = document.createElement('details');
+            featureCard.className = 'natural-feature';
+            const heading = document.createElement('summary');
+            const name = document.createElement('strong');
+            const source = document.createElement('span');
+            const description = document.createElement('p');
+            name.textContent = feature.name;
+            source.className = `natural-feature-source ${feature.kind === 'Class Feature' ? 'class-source' : 'race-source'}`;
+            source.textContent = `${feature.kind} · ${feature.source}`;
+            description.textContent = feature.description;
+            heading.append(name, source);
+            featureCard.append(heading, description);
+            return featureCard;
+        }));
     }
 
     renderFeatSlots() {

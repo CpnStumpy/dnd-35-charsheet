@@ -845,6 +845,13 @@ class Calculator {
             breakdown.push({ source: 'Human Bonus Feat', slots: 1 });
         }
 
+        const electiveBonusFeats = Object.values(characterData.classFeatureChoices || {})
+            .filter(choice => choice === 'Feat').length;
+        if (electiveBonusFeats > 0) {
+            totalSlots += electiveBonusFeats;
+            breakdown.push({ source: 'Class Feature Choices', slots: electiveBonusFeats });
+        }
+
         const used = characterData.feats ? characterData.feats.length : 0;
         const available = totalSlots - used;
 

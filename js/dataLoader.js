@@ -498,7 +498,8 @@ class DataLoader {
                     wis: race.wis || 0,
                     cha: race.cha || 0,
                     senses: race.senses || '',
-                    favoredClass: favoredClass
+                    favoredClass: favoredClass,
+                    racialTraits: race.racialTraits || []
                 });
             });
 
@@ -566,7 +567,8 @@ class DataLoader {
                     fortSave: cls.fortSave || 'Poor',
                     reflexSave: cls.reflexSave || 'Poor',
                     willSave: cls.willSave || 'Poor',
-                    skills: cls.skills || ''
+                    skills: cls.skills || '',
+                    features: cls.features || []
                 });
             });
 

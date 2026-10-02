@@ -33,6 +33,9 @@ class Character {
             // NEW: Feats
             feats: [],
 
+            // Choices granted by class progression (for example, rogue special abilities)
+            classFeatureChoices: {},
+
             // NEW: Flaws
             flaws: [],
 
@@ -539,6 +542,16 @@ class Character {
         this.notifyListeners();
     }
 
+    setClassFeatureChoice(choiceId, option) {
+        if (!this.data.classFeatureChoices) this.data.classFeatureChoices = {};
+        if (option) {
+            this.data.classFeatureChoices[choiceId] = option;
+        } else {
+            delete this.data.classFeatureChoices[choiceId];
+        }
+        this.notifyListeners();
+    }
+
     // NEW: Add flaw
     addFlaw(flaw) {
         this.data.flaws.push(flaw);
@@ -593,6 +606,10 @@ class Character {
         // Add feats array if missing
         if (!this.data.feats) {
             this.data.feats = [];
+        }
+
+        if (!this.data.classFeatureChoices) {
+            this.data.classFeatureChoices = {};
         }
 
         // Add flaws array if missing
