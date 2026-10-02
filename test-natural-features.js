@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 
 global.window = global;
+require('./js/classFeatureProgression.js');
 require('./js/naturalFeatures.js');
 
 const bardFeatures = [
@@ -50,5 +51,16 @@ assert(legacyFeatures.some(feature => feature.description === 'One extra feat at
 assert.equal(JSON.stringify(legacyExport.data), legacyDataBeforeResolution);
 
 assert.deepEqual(resolver.getForCharacter({}), []);
+
+// Feature levels are keyed by name, so a harmless source-data reorder does not
+// accidentally grant a high-level feature to a low-level character.
+const reorderedGameData = {
+    classes: new Map([['Bard', { features: [...bardFeatures].reverse() }]]),
+    races: new Map()
+};
+const reorderedFeatures = new NaturalFeatures(reorderedGameData)
+    .getForCharacter({ classes: [{ className: 'Bard' }] });
+assert(reorderedFeatures.some(feature => feature.name === 'Inspire Courage (Su)'));
+assert(!reorderedFeatures.some(feature => feature.name === 'Suggestion (Sp)'));
 
 console.log('Natural feature resolver tests passed.');

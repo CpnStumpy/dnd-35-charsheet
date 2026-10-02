@@ -1,19 +1,5 @@
 // Resolves class and racial features granted automatically by character choices.
 
-const CLASS_FEATURE_LEVELS = {
-    Barbarian: [1, 1, 1, 1, 2, 3, 5, 7, 11, 14, 17, 20],
-    Bard: [1, 1, 1, 1, 1, 1, 3, 6, 9, 12, 15, 18],
-    Cleric: [1, 1, 1, 1, 1, 1, 1, 1, 1],
-    Druid: [1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 5, 9, 13, 15],
-    Fighter: [1, 1],
-    Monk: [1, 1, 1, 1, 2, 3, 3, 4, 5, 7, 9, 11, 12, 13, 15, 17, 17, 19, 20],
-    Paladin: [1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 6, 1, 1],
-    Ranger: [1, 1, 1, 2, 3, 4, 4, 6, 7, 8, 9, 11, 13, 17],
-    Rogue: [1, 1, 2, 3, 4, 8, 10, 10],
-    Sorcerer: [1, 1, 1],
-    Wizard: [1, 1, 1, 1, 1, 5, 1]
-};
-
 const HUMAN_TRAITS = [
     'Medium: Humans have no special bonuses or penalties due to size.',
     'Human base land speed is 30 feet.',
@@ -45,9 +31,8 @@ class NaturalFeatures {
 
         return Object.entries(levelsByClass).flatMap(([className, level]) => {
             const classData = this.gameData.classes.get(className);
-            const featureLevels = CLASS_FEATURE_LEVELS[className] || [];
-            return (classData?.features || []).flatMap((feature, featureIdx) => {
-                const gainedAt = featureLevels[featureIdx];
+            return (classData?.features || []).flatMap(feature => {
+                const gainedAt = getClassFeatureLevel(className, feature.name);
                 if (!gainedAt || gainedAt > level) return [];
                 return [{
                     name: feature.name.replace(/:$/, ''),
