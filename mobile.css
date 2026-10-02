@@ -1,0 +1,189 @@
+/* Mobile layout and touch interaction enhancements. */
+.mobile-actions-toggle {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-bottom: env(safe-area-inset-bottom);
+        -webkit-text-size-adjust: 100%;
+    }
+
+    header {
+        padding-top: max(14px, env(safe-area-inset-top));
+    }
+
+    .header-content {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .header-left {
+        min-width: 0;
+    }
+
+    .header-left h1,
+    .char-name-display {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mobile-actions-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 44px;
+        padding: 8px 12px;
+    }
+
+    .header-right {
+        display: none;
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        width: 100%;
+    }
+
+    .header-right.mobile-actions-open {
+        display: grid;
+    }
+
+    .header-right .btn {
+        min-height: 44px;
+        padding-inline: 10px;
+    }
+
+    .header-right .btn-theme-toggle {
+        min-width: 0;
+    }
+
+    .tabs {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+        box-shadow: var(--shadow-sm);
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab-btn {
+        min-height: 48px;
+        scroll-snap-align: center;
+    }
+
+    .tab-content {
+        padding: 12px;
+    }
+
+    .card {
+        margin-bottom: 12px;
+        padding: 14px;
+        border-radius: var(--radius-md);
+    }
+
+    .card h2 {
+        margin-bottom: 14px;
+    }
+
+    .form-row,
+    .char-info-grid,
+    .wealth-grid,
+    .magic-items-grid,
+    .caster-config-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    input,
+    select,
+    textarea,
+    .form-control {
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    textarea {
+        min-height: 96px;
+    }
+
+    .btn,
+    button,
+    [role="button"] {
+        touch-action: manipulation;
+    }
+
+    .form-actions,
+    .feats-controls,
+    .skills-controls,
+    .carried-items-controls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .form-actions .btn,
+    .feats-controls .btn,
+    .skills-controls .btn,
+    .carried-items-controls .btn {
+        min-height: 44px;
+    }
+
+    .skills-table-container,
+    .classes-table-container,
+    .feats-table-container,
+    .carried-items-table-container {
+        margin-inline: -14px;
+        padding-inline: 14px;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-overlay,
+    .info-modal-overlay {
+        align-items: flex-end;
+    }
+
+    .modal-content,
+    .info-modal-detail,
+    .confirmation-modal,
+    .help-modal {
+        width: 100% !important;
+        max-width: none !important;
+        max-height: 92dvh;
+        margin: 0 !important;
+        border-radius: 16px 16px 0 0;
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+
+    footer {
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+}
+
+@media (max-width: 380px) {
+    .header-left h1 {
+        font-size: 1.05em;
+    }
+
+    .mobile-actions-toggle {
+        font-size: 0.78em;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tab-pane {
+        animation: none;
+    }
+
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+    }
+}

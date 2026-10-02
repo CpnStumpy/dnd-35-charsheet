@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Alegreya+Sans:wght@300;400;500;700&family=Alegreya+Sans+SC:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
     <div class="container">
@@ -18,7 +19,11 @@
                     <h1>3.5 Character Sheet</h1>
                     <p class="char-name-display" id="charNameDisplay">New Character</p>
                 </div>
-                <div class="header-right">
+                <button id="mobileActionsToggle" class="btn btn-secondary mobile-actions-toggle"
+                    type="button" aria-controls="characterActions" aria-expanded="false">
+                    <span aria-hidden="true">☰</span> Actions
+                </button>
+                <div class="header-right" id="characterActions">
                     <button id="themeToggle" class="btn btn-secondary btn-theme-toggle" title="Toggle light/dark theme">
                         <span class="theme-icon"></span>
                     </button>
@@ -126,6 +131,9 @@
 
     <!-- PDF / Print export -->
     <script src="js/pdfExport.js?v=4"></script>
+
+    <!-- Mobile interaction helpers -->
+    <script src="js/mobileNavigation.js?v=1"></script>
 
     <!-- Load main app last -->
     <script src="js/app.js?v=4"></script>

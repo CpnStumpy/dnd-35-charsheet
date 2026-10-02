@@ -35,6 +35,12 @@ A complete web-based character sheet builder for D&D 3.5, featuring a comprehens
 - Auto-save to browser storage (every 5 seconds)
 - Character data persists across sessions
 
+### Mobile Friendly
+- Collapsible character actions keep the header compact on a phone
+- Sticky, horizontally scrollable tabs keep every section within reach
+- Touch-sized controls and full-width forms make editing easier
+- Bottom-sheet dialogs respect device safe areas and available screen height
+
 ### Complete D&D 3.5 Implementation
 
 #### Character Tab
