@@ -1816,6 +1816,13 @@ header::after {
 .spell-database-entry:last-child,
 .item-database-entry:last-child { border-bottom: none; }
 
+#featList {
+    position: relative;
+    width: 100%;
+}
+
+#featList .feat-item { box-sizing: border-box; }
+
 .feat-item-selected,
 .spell-entry-selected,
 .item-entry-selected {

@@ -408,43 +408,61 @@ class FeatsTab {
         // Sort by name
         filteredFeats.sort((a, b) => a.name.localeCompare(b.name));
 
-        featList.innerHTML = '';
-
         if (filteredFeats.length === 0) {
+            if (this.featVirtualList) this.featVirtualList.setItems([]);
+            featList.style.height = 'auto';
             featList.innerHTML = '<p style="text-align: center; padding: 20px;">No feats found matching filters.</p>';
             return;
         }
 
-        filteredFeats.forEach(feat => {
-            const prereqCheck = calculator.checkFeatPrerequisites(data, feat, stats.abilities);
-            const qualifies = prereqCheck.qualifies;
+        const scrollElement = featList.closest('.feat-list-container');
+        if (window.VirtualFeatList) {
+            if (!this.featVirtualList) {
+                this.featVirtualList = new VirtualFeatList({
+                    scrollElement,
+                    listElement: featList,
+                    renderItem: feat => this.createFeatListItem(feat)
+                });
+            }
+            this.featVirtualList.setItems(filteredFeats);
+            return;
+        }
 
-            // Get feat category
-            const parsed = parseFeatBenefits(feat);
-            const categoryClass = this.getCategoryClass(parsed.category);
-            const categoryIcon = this.getCategoryIcon(parsed.category);
+        // Keep the UI responsive if the CDN is unavailable.
+        featList.style.height = 'auto';
+        featList.replaceChildren(...filteredFeats.slice(0, 100).map(feat => this.createFeatListItem(feat)));
+    }
 
-            const item = document.createElement('div');
-            item.className = `feat-item ${qualifies ? 'feat-available' : 'feat-unavailable'}`;
-            item.dataset.feat = feat.name;
+    createFeatListItem(feat) {
+        const data = character.getData();
+        const stats = this.stats || calculator.calculateAll(data);
+        const prereqCheck = calculator.checkFeatPrerequisites(data, feat, stats.abilities);
+        const qualifies = prereqCheck.qualifies;
 
-            const statusIcon = qualifies ? '✓' : '✗';
-            const statusClass = qualifies ? 'status-available' : 'status-unavailable';
+        const parsed = parseFeatBenefits(feat);
+        const categoryClass = this.getCategoryClass(parsed.category);
+        const categoryIcon = this.getCategoryIcon(parsed.category);
 
-            item.innerHTML = `
-                <div class="feat-item-header">
-                    <span class="feat-status ${statusClass}">${statusIcon}</span>
-                    <strong>${feat.name}</strong>
-                    <div style="display: inline-flex; gap: 5px; align-items: center;">
-                        <span class="feat-type-badge">${feat.type}</span>
-                        <span class="feat-category-badge ${categoryClass}" title="${parsed.description}">${categoryIcon}</span>
-                    </div>
+        const item = document.createElement('div');
+        item.className = `feat-item ${qualifies ? 'feat-available' : 'feat-unavailable'}`;
+        item.dataset.feat = feat.name;
+
+        const statusIcon = qualifies ? '✓' : '✗';
+        const statusClass = qualifies ? 'status-available' : 'status-unavailable';
+
+        item.innerHTML = `
+            <div class="feat-item-header">
+                <span class="feat-status ${statusClass}">${statusIcon}</span>
+                <strong>${feat.name}</strong>
+                <div style="display: inline-flex; gap: 5px; align-items: center;">
+                    <span class="feat-type-badge">${feat.type}</span>
+                    <span class="feat-category-badge ${categoryClass}" title="${parsed.description}">${categoryIcon}</span>
                 </div>
-                ${!qualifies ? `<div class="feat-missing-prereqs">Missing: ${prereqCheck.missing.join(', ')}</div>` : ''}
-            `;
+            </div>
+            ${!qualifies ? `<div class="feat-missing-prereqs">Missing: ${prereqCheck.missing.join(', ')}</div>` : ''}
+        `;
 
-            featList.appendChild(item);
-        });
+        return item;
     }
 
     selectFeat(featName) {
