@@ -28,7 +28,9 @@ class NaturalFeatures {
         this.gameData = gameData;
     }
 
-    getForCharacter(characterData) {
+    // Features stay derived rather than being written into save data. This lets
+    // current and legacy saves gain the latest rules whenever they are loaded.
+    getForCharacter(characterData = {}) {
         return [
             ...this.getClassFeatures(characterData.classes || []),
             ...this.getRacialFeatures(characterData.race)

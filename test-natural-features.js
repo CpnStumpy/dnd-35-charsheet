@@ -32,4 +32,23 @@ assert(thirdLevelBard.some(feature => feature.name === 'Inspire Competence (Su)'
 assert(!thirdLevelBard.some(feature => feature.name === 'Suggestion (Sp)'));
 assert(thirdLevelBard.some(feature => feature.name === 'Keen Senses'));
 
+// Legacy exports have no naturalFeatures field. Features must be derived from
+// their existing race/classes without changing the imported character data.
+const legacyExport = JSON.parse(JSON.stringify({
+    version: '1.0',
+    data: {
+        name: 'Legacy Bard',
+        race: 'Human',
+        classes: [{ level: 1, className: 'Bard' }],
+        feats: []
+    }
+}));
+const legacyDataBeforeResolution = JSON.stringify(legacyExport.data);
+const legacyFeatures = resolver.getForCharacter(legacyExport.data);
+assert(legacyFeatures.some(feature => feature.name === 'Inspire Courage (Su)'));
+assert(legacyFeatures.some(feature => feature.description === 'One extra feat at 1st level.'));
+assert.equal(JSON.stringify(legacyExport.data), legacyDataBeforeResolution);
+
+assert.deepEqual(resolver.getForCharacter({}), []);
+
 console.log('Natural feature resolver tests passed.');
