@@ -200,8 +200,9 @@ class SpellsTab {
 
         // Accordion toggle
         this.container.addEventListener('click', (e) => {
-            if (e.target.classList.contains('spell-level-header')) {
-                const level = parseInt(e.target.dataset.level);
+            const spellLevelHeader = e.target.closest('.spell-level-header');
+            if (spellLevelHeader) {
+                const level = parseInt(spellLevelHeader.dataset.level);
                 this.toggleAccordion(level);
             }
         });
@@ -686,6 +687,8 @@ class SpellsTab {
 
                 // Spells table
                 if (spells.length > 0) {
+                    const tableContainer = document.createElement('div');
+                    tableContainer.className = 'spells-table-container';
                     const table = document.createElement('table');
                     table.className = 'spells-table';
                     table.innerHTML = `
@@ -701,13 +704,15 @@ class SpellsTab {
                         <tbody>
                             ${spells.map((spell, index) => {
                                 const dc = 10 + level + abilityMod;
+                                const databaseSpell = dataLoader.gameData.spells.get(spell.spellId || spell.name);
+                                const spellDetails = SpellDetails.render(spell, databaseSpell);
                                 return `
                                     <tr>
                                         <td>
-                                            <strong>${spell.name}</strong>
-                                            ${spell.notes ? `<br><small class="spell-notes">${spell.notes}</small>` : ''}
+                                            <strong>${SpellDetails.escape(spell.name)}</strong>
+                                            ${spellDetails}
                                         </td>
-                                        <td>${spell.school}</td>
+                                        <td>${SpellDetails.escape(spell.school || 'Unknown')}</td>
                                         <td>${dc}</td>
                                         <td>
                                             <input type="checkbox"
@@ -726,7 +731,8 @@ class SpellsTab {
                             }).join('')}
                         </tbody>
                     `;
-                    content.appendChild(table);
+                    tableContainer.appendChild(table);
+                    content.appendChild(tableContainer);
                 } else {
                     const emptyMsg = document.createElement('p');
                     emptyMsg.className = 'info-text';

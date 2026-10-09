@@ -1609,8 +1609,16 @@ header::after {
     background: var(--bg-surface);
 }
 
+.spells-table-container {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
 .spells-table {
     width: 100%;
+    min-width: 620px;
     border-collapse: collapse;
     margin-top: 12px;
 }
@@ -1635,6 +1643,41 @@ header::after {
 .spells-table tr:hover { background: rgba(200, 184, 138, 0.03); }
 
 .spell-notes { color: var(--text-muted); font-style: italic; }
+
+.spell-row-details {
+    margin-top: 6px;
+    min-width: 260px;
+    color: var(--text-secondary);
+}
+
+.spell-row-details summary {
+    width: max-content;
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 0.88em;
+    font-weight: 600;
+}
+
+.spell-detail-grid {
+    display: grid;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.spell-detail-item {
+    display: grid;
+    grid-template-columns: 110px minmax(180px, 1fr);
+    gap: 8px;
+}
+
+.spell-detail-item dt { color: var(--text-muted); font-weight: 600; }
+.spell-detail-item dd { margin: 0; }
+
+.spell-detail-description {
+    max-width: 720px;
+    margin-top: 8px;
+    white-space: normal;
+}
 
 .spell-prepared-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold); }
 
