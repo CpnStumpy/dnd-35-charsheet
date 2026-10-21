@@ -447,7 +447,7 @@ class Calculator {
             flawPenalty = flawPenalties.skill_penalties[skillName];
         }
 
-        return skill.totalRanks + abilityMod + (skill.bonus || 0) + featBonus + flawPenalty;
+        return Math.floor(skill.totalRanks) + abilityMod + (skill.bonus || 0) + featBonus + flawPenalty;
     }
 
     // Check if skill is class skill for any of character's classes
@@ -470,13 +470,37 @@ class Calculator {
     // Calculate max skill ranks for a level
     calculateMaxSkillRanks(characterData, skillName, level) {
         // Determine if skill is class skill for any of the character's classes up to this level
-        const isClassSkill = this.isClassSkillForCharacter(characterData, skillName);
+        const isClassSkill = this.isClassSkillForCharacter({
+            ...characterData, classes: characterData.classes.slice(0, level)
+        }, skillName);
 
         if (isClassSkill) {
             return level + 3; // Class skill: level + 3
         } else {
-            return Math.floor((level + 3) / 2); // Cross-class: (level + 3) / 2
+            return (level + 3) / 2; // Cross-class: (level + 3) / 2
         }
+    }
+
+    // Purchase cost depends on the class being advanced, unlike the rank cap.
+    calculateSkillRankCost(characterData, skillName, level) {
+        const className = characterData.classes[level - 1]?.className;
+        return characterData.characterClassSkills?.includes(skillName) ||
+            (className && this.dataLoader.isClassSkill(skillName, className)) ? 1 : 2;
+    }
+
+    validateSkillRanks(characterData, skillName, ranks) {
+        let cumulative = 0;
+        for (let level = 1; level <= characterData.classes.length; level++) {
+            const rank = Number(ranks[level - 1] ?? 0);
+            const cost = this.calculateSkillRankCost(characterData, skillName, level);
+            if (!Number.isFinite(rank) || rank < 0 || !Number.isInteger(rank * cost)) {
+                return `Level ${level}: buy whole ranks for class skills or half ranks for cross-class skills.`;
+            }
+            cumulative += rank;
+            const maximum = this.calculateMaxSkillRanks(characterData, skillName, level);
+            if (cumulative > maximum) return `Level ${level}: total ranks ${cumulative} exceed the maximum of ${maximum}.`;
+        }
+        return null;
     }
 
     // Calculate skill points for a level
@@ -523,13 +547,7 @@ class Calculator {
         let spentPoints = 0;
         Object.entries(characterData.skills).forEach(([skillName, skill]) => {
             const ranks = skill.ranks[level - 1] || 0;
-            const isClassSkill = this.dataLoader.isClassSkill(skillName, classLevel.className);
-
-            if (isClassSkill) {
-                spentPoints += ranks; // 1 point per rank
-            } else {
-                spentPoints += ranks * 2; // 2 points per rank (cross-class)
-            }
+            spentPoints += ranks * this.calculateSkillRankCost(characterData, skillName, level);
         });
 
         return {

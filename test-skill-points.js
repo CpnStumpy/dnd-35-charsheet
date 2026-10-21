@@ -52,3 +52,50 @@ assert.equal(points(3).total, 7);
 assert.equal(points(0).total, 0);
 assert.equal(points(6).total, 0);
 console.log('Skill point calculation and import tests passed.');
+
+// Caps apply to cumulative purchased ranks, with half ranks retained.
+const ranked = new context.Character();
+const rankData = ranked.getData();
+rankData.level = 2;
+rankData.classes = [{ className: 'Bard' }, { className: 'Wizard' }];
+const rankCalculator = new context.Calculator({
+    getClass: loader.getClass,
+    isClassSkill: (skill, cls) => skill === 'Perform' && cls === 'Bard'
+});
+assert.equal(rankCalculator.calculateMaxSkillRanks(rankData, 'Spot', 2), 2.5);
+assert.equal(rankCalculator.validateSkillRanks(rankData, 'Spot', [2, 0.5]), null);
+assert(rankCalculator.validateSkillRanks(rankData, 'Spot', [2, 1]));
+assert.equal(rankCalculator.validateSkillRanks(rankData, 'Perform', [4, 1]), null);
+assert(rankCalculator.validateSkillRanks(rankData, 'Perform', [4, 2]));
+assert(rankCalculator.validateSkillRanks(rankData, 'Perform', [0.5, 0]));
+assert(rankCalculator.validateSkillRanks(rankData, 'Spot', [-1, 0]));
+assert(rankCalculator.validateSkillRanks(rankData, 'Spot', [NaN, 0]));
+assert.equal(rankCalculator.calculateSkillRankCost(rankData, 'Perform', 2), 2);
+assert.equal(rankCalculator.calculateMaxSkillRanks(rankData, 'Perform', 2), 5);
+rankData.classes.reverse();
+assert.equal(rankCalculator.calculateMaxSkillRanks(rankData, 'Perform', 1), 2,
+    'a class taken later cannot increase historical caps');
+rankData.skills = { Spot: { ranks: [0, 0], totalRanks: 0, ability: 'wis' } };
+ranked.updateSkillRanks('Spot', 1, 0.5);
+assert.equal(rankData.skills.Spot.totalRanks, 0.5);
+assert.equal(rankCalculator.calculateSkillModifier(rankData, 'Spot', {wis: {modifier: 1}}), 1,
+    'half ranks do not add half a point to checks');
+rankData.characterClassSkills = ['Spot'];
+assert.equal(rankCalculator.calculateSkillRankCost(rankData, 'Spot', 1), 1);
+assert.equal(rankCalculator.calculateMaxSkillRanks(rankData, 'Spot', 1), 4);
+console.log('Skill rank cap, cost, and half-rank tests passed.');
+// Save validates cumulative caps even if input-change validation was bypassed.
+const validationElement = { classList: { remove() {} } };
+const modalInputs = [{ value: '4' }, { value: '2' }];
+context.window = context;
+context.rankData = rankData;
+context.rankCalculator = rankCalculator;
+vm.runInContext('character.setData(rankData); calculator = rankCalculator;', context);
+context.document = { getElementById: id => id === 'modalRanksGrid'
+    ? { querySelectorAll: () => modalInputs } : validationElement };
+vm.runInContext(fs.readFileSync('js/ui/skillsTab.js', 'utf8'), context);
+const tab = Object.create(context.SkillsTab.prototype);
+tab.currentSkill = 'Perform';
+tab.saveSkillRanks();
+assert.match(validationElement.textContent, /exceed the maximum/);
+console.log('Skill editor save validation test passed.');
