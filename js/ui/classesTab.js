@@ -89,7 +89,7 @@ class ClassesTab {
                        min="1" max="20" placeholder="HP"
                        ${isExisting ? '' : 'disabled'}>
             </td>
-            <td class="skill-points" data-level="${level}">${classData ? classData.skillPoints : '-'}</td>
+            <td class="skill-points" data-level="${level}">${classData ? calculator.calculateAvailableSkillPoints(character.getData(), level).total : '-'}</td>
             <td>
                 ${isExisting ?
                     `<button class="btn btn-small btn-danger remove-level" data-level="${level}">Remove</button>` :
@@ -220,13 +220,7 @@ class ClassesTab {
         const classData = dataLoader.getClass(className);
         if (!classData) return;
 
-        const stats = calculator.calculateAll(character.getData());
-        const intMod = stats.abilities.int.modifier;
-
-        const skillPoints = calculator.calculateSkillPoints(classData, intMod);
-
-        // Multiply by 4 for first level
-        const totalSkillPoints = level === 1 ? skillPoints * 4 : skillPoints;
+        const totalSkillPoints = calculator.calculateLevelSkillPoints(character.getData(), level, classData);
 
         const skillPointsCell = this.container.querySelector(`.skill-points[data-level="${level}"]`);
         if (skillPointsCell) {
@@ -268,10 +262,7 @@ class ClassesTab {
         const classData = dataLoader.getClass(className);
         if (!classData) return;
 
-        const stats = calculator.calculateAll(character.getData());
-        const intMod = stats.abilities.int.modifier;
-        const skillPoints = calculator.calculateSkillPoints(classData, intMod);
-        const totalSkillPoints = level === 1 ? skillPoints * 4 : skillPoints;
+        const totalSkillPoints = calculator.calculateLevelSkillPoints(character.getData(), level, classData);
 
         character.addClass(level, className, classData, hp, totalSkillPoints);
 

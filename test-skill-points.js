@@ -1,0 +1,54 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const context = vm.createContext({ console });
+vm.runInContext(fs.readFileSync('js/character.js', 'utf8') + '\n' +
+    fs.readFileSync('js/calculator.js', 'utf8') + '\nthis.Character = Character; this.Calculator = Calculator;', context);
+const classes = JSON.parse(fs.readFileSync('data/json/classes.json', 'utf8')).data;
+const loader = {
+    getClass: name => classes.find(cls => cls.name === name),
+    isClassSkill: name => name === 'Perform'
+};
+const calculator = new context.Calculator(loader);
+const character = new context.Character();
+const data = character.getData();
+data.abilities.base.int = 12;
+data.level = 5;
+data.classes = Array.from({ length: 5 }, (_, i) => ({ level: i + 1, className: 'Bard', skillPoints: 5 }));
+data.skills = { Perform: { ranks: [4, 1] }, Spot: { ranks: [0.5, 1] } };
+const points = level => calculator.calculateAvailableSkillPoints(character.getData(), level);
+assert.equal(points(1).total, 32);
+assert.equal(points(1).spent, 5);
+assert.equal(points(1).remaining, 27);
+assert.equal(points(2).total, 8);
+assert.equal(points(2).spent, 3);
+const exported = character.exportToJSON();
+assert(character.importFromJSON(exported));
+assert.equal(points(1).remaining, 27, 'imports recalculate rather than trust stale skillPoints');
+assert.equal(character.getData().skills.Perform.ranks[0], 4);
+const imported = character.getData();
+imported.abilities.base.int = 13;
+imported.abilities.levelUps = { 4: 'int' };
+assert.equal(points(1).total, 32, 'INT increases are not retroactive');
+assert.equal(points(3).total, 8);
+assert.equal(points(4).total, 9);
+imported.abilities.magic.int = 6;
+imported.abilities.temp.int = 8;
+assert.equal(points(4).total, 9, 'magical and temporary INT do not grant points');
+imported.classes[4].className = 'Wizard';
+assert.equal(points(5).total, 5, 'multiclassing uses the new class without quadrupling again');
+imported.race = 'Elf';
+assert.equal(points(1).total, 28);
+assert.equal(points(2).total, 7);
+imported.abilities.base.int = 1;
+assert.equal(points(1).total, 4, 'minimum one point applies before quadrupling');
+imported.race = 'Human';
+assert.equal(points(1).total, 8);
+assert.equal(points(5).total, 2, 'human bonus applies after the minimum');
+imported.feats = [{ name: 'Open Minded', level: 1 }, { name: 'Open Minded', level: 3 }];
+assert.equal(points(1).total, 13, 'feat bonus is not quadrupled');
+assert.equal(points(2).total, 2);
+assert.equal(points(3).total, 7);
+assert.equal(points(0).total, 0);
+assert.equal(points(6).total, 0);
+console.log('Skill point calculation and import tests passed.');

@@ -482,8 +482,27 @@ class Calculator {
     // Calculate skill points for a level
     calculateSkillPoints(classData, intModifier) {
         const basePoints = classData.skillPoints || 2;
-        const bonus = Math.max(intModifier, 0); // INT bonus (minimum 0)
-        return basePoints + bonus;
+        return Math.max(1, basePoints + intModifier);
+    }
+
+    // Use permanent INT at the level earned, never later increases or temporary effects.
+    calculateLevelSkillPoints(characterData, level, classData) {
+        const abilities = characterData.abilities;
+        let intelligence = (abilities.base.int ?? 10) + (abilities.racial.int || 0)
+            + (abilities.misc.int || 0);
+        Object.entries(abilities.levelUps || {}).forEach(([earnedLevel, ability]) => {
+            if (ability === 'int' && Number(earnedLevel) <= level) intelligence += 1;
+        });
+        const multiplier = level === 1 ? 4 : 1;
+        let total = this.calculateSkillPoints(classData,
+            this.calculateAbilityModifier(intelligence)) * multiplier;
+        if (characterData.race === 'Human') total += multiplier;
+
+        // Feat points are granted once, after the first-level multiplier.
+        (characterData.feats || []).forEach(feat => {
+            if (feat.name === 'Open Minded' && Number(feat.level) === level) total += 5;
+        });
+        return total;
     }
 
     // Calculate available skill points for a level
@@ -498,17 +517,7 @@ class Calculator {
         const classData = this.dataLoader.getClass(classLevel.className);
         if (!classData) return emptyResult;
 
-        // Get INT modifier at this level
-        const abilities = this.calculateFinalAbilities(characterData);
-        const intMod = abilities.int.modifier;
-
-        let totalPoints = this.calculateSkillPoints(classData, intMod);
-
-        // NEW: Add Open Minded bonus (+5 skill points one-time at the level it was taken)
-        const openMindedFeat = characterData.feats.find(f => f.name === 'Open Minded');
-        if (openMindedFeat && openMindedFeat.level === level) {
-            totalPoints += 5;
-        }
+        const totalPoints = this.calculateLevelSkillPoints(characterData, level, classData);
 
         // Calculate spent points
         let spentPoints = 0;
