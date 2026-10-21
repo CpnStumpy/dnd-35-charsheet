@@ -69,7 +69,7 @@
     {
       "name": "Bard",
       "hitDie": 6,
-      "skillPoints": 4,
+      "skillPoints": 6,
       "baseAttack": "Good",
       "fortSave": "Poor",
       "reflexSave": "Good",

@@ -354,7 +354,7 @@ class SkillsTab {
         // Set modal title
         document.getElementById('modalSkillName').textContent = `${skillName} - ${skillData.ability}`;
         document.getElementById('modalSkillInfo').textContent =
-            `${isClassSkill ? 'Class Skill' : 'Cross-Class Skill'} (${isClassSkill ? '1 pt per rank' : '2 pts per rank'})`;
+            'Each row adds ranks at that level. Max is the cumulative rank cap; cost depends on the class advanced.';
 
         // Build ranks grid
         const ranksGrid = document.getElementById('modalRanksGrid');
@@ -363,7 +363,8 @@ class SkillsTab {
         for (let level = 1; level <= data.level; level++) {
             const currentRanks = skillData.ranks[level - 1] || 0;
             const maxRanks = calculator.calculateMaxSkillRanks(data, skillName, level);
-            const cost = currentRanks * (isClassSkill ? 1 : 2);
+            const rankCost = calculator.calculateSkillRankCost(data, skillName, level);
+            const cost = currentRanks * rankCost;
 
             const rankRow = document.createElement('div');
             rankRow.className = 'rank-row';
@@ -375,7 +376,8 @@ class SkillsTab {
                        data-skill="${skillName}"
                        value="${currentRanks}"
                        min="0"
-                       max="${maxRanks}">
+                       max="${maxRanks}"
+                       step="${1 / rankCost}">
                 <span class="rank-max">/ ${maxRanks}</span>
                 <span class="rank-cost">${cost} pts</span>
             `;
@@ -393,31 +395,19 @@ class SkillsTab {
     }
 
     validateRankInput(input) {
-        const level = parseInt(input.dataset.level);
+        const level = Number(input.dataset.level);
         const skillName = input.dataset.skill;
-        const ranks = parseInt(input.value) || 0;
         const data = character.getData();
-
-        const maxRanks = calculator.calculateMaxSkillRanks(data, skillName, level);
-
-        // Validate max ranks
-        if (ranks > maxRanks) {
-            input.value = maxRanks;
-            this.showValidationError(`Max ranks at level ${level}: ${maxRanks}`);
+        const ranks = Number(input.value);
+        const rankInputs = document.getElementById('modalRanksGrid').querySelectorAll('.skill-rank-input');
+        const error = calculator.validateSkillRanks(data, skillName, Array.from(rankInputs, field => Number(field.value)));
+        const costSpan = input.closest('.rank-row').querySelector('.rank-cost');
+        if (costSpan) costSpan.textContent = `${ranks * calculator.calculateSkillRankCost(data, skillName, level)} pts`;
+        if (error) {
+            this.showValidationError(error);
             return false;
         }
-
-        // Update cost display
-        const isClassSkill = calculator.isClassSkillForCharacter(data, skillName);
-        const cost = ranks * (isClassSkill ? 1 : 2);
-        const costSpan = input.closest('.rank-row').querySelector('.rank-cost');
-        if (costSpan) {
-            costSpan.textContent = `${cost} pts`;
-        }
-
-        // Validate total points for this level
-        this.validateLevelPoints(level);
-        return true;
+        return this.validateLevelPoints(level);
     }
 
     validateLevelPoints(level) {
@@ -431,17 +421,15 @@ class SkillsTab {
 
         inputs.forEach(input => {
             const skillName = input.dataset.skill;
-            const ranks = parseInt(input.value) || 0;
-            const isClassSkill = calculator.isClassSkillForCharacter(data, skillName);
-            totalSpent += ranks * (isClassSkill ? 1 : 2);
+            const ranks = Number(input.value) || 0;
+            totalSpent += ranks * calculator.calculateSkillRankCost(data, skillName, level);
         });
 
         // Add points from other skills
         Object.entries(data.skills).forEach(([skillName, skillData]) => {
             if (skillName !== this.currentSkill) {
                 const ranks = skillData.ranks[level - 1] || 0;
-                const isClassSkill = calculator.isClassSkillForCharacter(data, skillName);
-                totalSpent += ranks * (isClassSkill ? 1 : 2);
+                totalSpent += ranks * calculator.calculateSkillRankCost(data, skillName, level);
             }
         });
 
@@ -470,6 +458,13 @@ class SkillsTab {
         const modal = document.getElementById('modalRanksGrid');
         const inputs = modal.querySelectorAll('.skill-rank-input');
 
+        const rankError = calculator.validateSkillRanks(data, this.currentSkill,
+            Array.from(inputs, input => Number(input.value)));
+        if (rankError) {
+            this.showValidationError(rankError);
+            return;
+        }
+
         // Validate all levels before saving
         let hasError = false;
         for (let level = 1; level <= data.level; level++) {
@@ -486,7 +481,7 @@ class SkillsTab {
         // Save all ranks
         inputs.forEach(input => {
             const level = parseInt(input.dataset.level);
-            const ranks = parseInt(input.value) || 0;
+            const ranks = Number(input.value) || 0;
             character.updateSkillRanks(this.currentSkill, level, ranks);
         });
 

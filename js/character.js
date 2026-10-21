@@ -372,7 +372,7 @@ class Character {
     // Update skill ranks
     updateSkillRanks(skillName, level, ranks) {
         if (this.data.skills[skillName]) {
-            this.data.skills[skillName].ranks[level - 1] = parseInt(ranks) || 0;
+            this.data.skills[skillName].ranks[level - 1] = Number(ranks) || 0;
 
             // Update total ranks
             this.data.skills[skillName].totalRanks = this.data.skills[skillName].ranks
